@@ -1,0 +1,16 @@
+.view-job-container {
+  padding: 20px;
+}
+
+.heading {
+  font-size: 24px;
+  margin-bottom: 10px;
+	text-align: center; 
+  font-family: "Your Heading Font", sans-serif; 
+}
+
+.job-description {
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: "Your Body Font", sans-serif;
+}
