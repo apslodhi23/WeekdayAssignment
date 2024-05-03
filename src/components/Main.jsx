@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./main.css";
 import { Card } from "../components/card/Card";
 import { fetchJobs } from "../actions/fetchJob";
+import FilteredList, { Topbar } from "./header/Header";
 
 const Main = () => {
 	const [ jobs, setJobs ] = useState( null );
@@ -9,19 +10,21 @@ const Main = () => {
 	const [ offset, setOffset ] = useState( 0 );
 
 	useEffect( () => {
-		fetchMoreJobs();
 		addScrollListener(); // Add the scroll event listener when the component mounts
 	}, [] );
-
-	const fetchMoreJobs = async () => {
-		setLoading( true );
-		console.log( "called" );
-		const response = await fetchJobs( { limit: 10, offset } );
-		if ( response ) {
-			setJobs( ( prevJobs ) => ( prevJobs ? [ ...prevJobs, ...response ] : response ) );
-			setOffset( ( prevOffset ) => prevOffset + 10 );
-			setLoading( false );
+	useEffect( () => {
+		const getData = async () => {
+			const response = await fetchJobs( { limit: 10, offset: offset } );
+			if ( response ) {
+				setJobs( ( prevJobs ) => ( prevJobs ? [ ...prevJobs, ...response ] : response ) );
+			}
 		}
+		getData();
+	}, [ offset ] )
+	const fetchMoreJobs = async () => {
+		setOffset( ( ( prevOffset ) => {
+			return prevOffset + 10
+		} ) );
 	};
 
 	const addScrollListener = () => {
@@ -37,6 +40,7 @@ const Main = () => {
 	return (
 		<>
 			<h1>Main Component</h1>
+			<Topbar jobs={ jobs } />
 			<div className="card-container">
 				{ jobs &&
 					jobs.map( ( job, index ) => <Card cardData={ job } key={ index } /> ) }

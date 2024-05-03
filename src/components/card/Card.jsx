@@ -29,12 +29,8 @@ export const Card = ( { cardData } ) => {
 			*/}
 
 			<div className="text-content">
-				<h1>{ cardData?.jdUid }</h1>
 				<div className="title">
-					{/*Putting Random images as images name is not provided in API*/ }
-					<div className="image-placeholder" >
-						<img width="100%" height="100%" src={ "https://picsum.photos/200" } alt="compnay logo" />
-					</div>
+
 					<div className="company-title">
 						{/*Not provided in dataset*/ }
 						<div className="div">Company Name</div>
@@ -57,7 +53,7 @@ export const Card = ( { cardData } ) => {
 				</div>
 				<div className="miinimum-experience">
 					<div className="text-wrapper-6">Minimum Experience</div>
-					<div className="minimum-experience">{ `${ cardData?.minExp } - ${ cardData?.maxExp } years` }</div>
+					<div className="minimum-experience">{ `${ cardData?.minExp ? cardData?.minExp : "NA" } - ${ cardData?.maxExp ? cardData?.maxExp : "NA" } years` }</div>
 				</div>
 				<div className="easy-apply" onClick={ handleApplyClick }>
 					<div className="container" href={ cardData?.jdLink } >

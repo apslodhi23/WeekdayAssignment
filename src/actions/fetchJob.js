@@ -14,7 +14,9 @@ export const fetchJobs = async ( { limit, offset } ) => {
 				}
 			}
 		);
+		console.log( response?.data?.jdList );
 		return response?.data?.jdList;
+
 	} catch ( error ) {
 		console.error( error );
 	}

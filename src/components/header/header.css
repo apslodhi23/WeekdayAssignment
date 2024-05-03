@@ -1,0 +1,23 @@
+.topbar {
+  align-items: flex-start;
+  display: flex;
+  gap: 5px;
+  min-height: 36px;
+  min-width: 929px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+	overflow: hidden;
+	z-index: 1;
+	padding-bottom: 20px;
+}
+
+.topbar .dropdown {
+  /*background-color: #0000001a;*/
+  border-radius: 4px;
+  height: 36px;
+  position: relative;
+  min-width: 144px;
+	width: 100%;
+	z-index: 100;
+}
