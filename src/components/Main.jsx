@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import "./main.css";
 import { Card } from "../components/card/Card";
 import { fetchJobs } from "../actions/fetchJob";
-import FilteredList, { Topbar } from "./header/Header";
+import { Header } from "../components/header/Header";
+import "./main.css";
 
 const Main = () => {
 	const [ jobs, setJobs ] = useState( null );
+	const [ filteredJobs, setFilteredJobs ] = useState( null );
 	const [ loading, setLoading ] = useState( false );
 	const [ offset, setOffset ] = useState( 0 );
 
@@ -39,11 +40,10 @@ const Main = () => {
 
 	return (
 		<>
-			<h1>Main Component</h1>
-			<Topbar jobs={ jobs } />
+			<Header jobs={ jobs } setFilteredJobs={ setFilteredJobs } />
 			<div className="card-container">
-				{ jobs &&
-					jobs.map( ( job, index ) => <Card cardData={ job } key={ index } /> ) }
+				{ filteredJobs?.length > 0 ?
+					filteredJobs?.map( ( job, index ) => <Card cardData={ job } key={ index } /> ) : <h3>No jobs found</h3> }
 			</div>
 			{ loading && <p>Loading...</p> }
 		</>

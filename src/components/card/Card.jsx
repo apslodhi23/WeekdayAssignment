@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "./card.css";
 import ViewJob from "./viewJob/ViewJob";
+import "./card.css";
+
 export const Card = ( { cardData } ) => {
 	const [ expanded, setExpanded ] = useState( false );
 
@@ -33,7 +34,7 @@ export const Card = ( { cardData } ) => {
 
 					<div className="company-title">
 						{/*Not provided in dataset*/ }
-						<div className="div">Company Name</div>
+						<div className="name">Company Name</div>
 						<div className="text-wrapper-2">{ cardData?.jobRole }</div>
 						<div className="text-wrapper-3">{ cardData?.location }</div>
 					</div>
@@ -42,10 +43,11 @@ export const Card = ( { cardData } ) => {
 				{/*Handleing if one of the value is null*/ }
 				<div className="salary">Estimated Salary: { `${ cardData?.salaryCurrencyCode === "USD" && "$" }${ cardData?.minJdSalary ? cardData?.minJdSalary + "-" : "" }${ cardData?.maxJdSalary ? cardData?.maxJdSalary : "" }${ cardData?.salaryCurrencyCode === "USD" ? "K" : "LPA" }` }</div>
 				<div className="about-us">
+					{/*comapy name is also not provided in the api so not able to implement search on it*/ }
 					<div className="text-wrapper-4">About Company</div>
 					<div className="text-wrapper-5">About us</div>
 					<div className="about-company">
-						{ cardData.jobDetailsFromCompany.slice( 0, 200 ) }...
+						{ cardData.jobDetailsFromCompany.slice( 0, 600 ) }...
 					</div>
 					<div className="gradient" onClick={ toggleExpand }>
 						<div className="view-more">View job</div>

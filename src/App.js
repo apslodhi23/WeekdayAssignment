@@ -1,6 +1,5 @@
-import './App.css';
 //@ts-ignore
-import Main from './components/Main';
+import Main from '../src/components/Main';
 const App = () => {
   return (
     <div className="App">

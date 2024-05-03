@@ -1,35 +1,87 @@
 import React, { useEffect, useState } from "react";
-import "./header.css"
-import { Select } from "react-select";
 import ReactSelect from "react-select";
-export const Topbar = ( { jobs } ) => {
+import "./header.css";
 
-	let locations = [ ...new Set( jobs?.map( ( job ) => job.location ) ) ];
+export const Header = ( { jobs, setFilteredJobs } ) => {
+	let locations = [ ...new Set( jobs?.filter( ( job ) => job.location !== "remote" ).map( ( job ) => job.location ) ) ];
+	let isRemote = locations.includes( "Remote" );
+	locations = isRemote ? locations.filter( ( location ) => location !== "Remote" ) : locations;
+
 	let roles = [ ...new Set( jobs?.map( ( job ) => job.jobRole ) ) ];
-	useEffect( () => {
-		locations = [ ...new Set( jobs?.map( ( job ) => job.location ) ) ];
-		roles = [ ...new Set( jobs?.map( ( job ) => job.jobRole ) ) ];
-	}, [ jobs ] );
-	console.log( roles, locations, "locations" )
-	const [ selectedLocations, setSelectedLocations ] = useState( [] );
-	const [ selectedRoles, setSelectedRoles ] = useState( [] );
-	const [ minExperience, setMinExperience ] = useState( null );
-	const [ maxExperience, setMaxExperience ] = useState( null );
 
-	const filteredJobs = jobs?.filter( ( job ) => {
-		const locationMatch = selectedLocations.length === 0 || selectedLocations.some( ( location ) => location.value === job.location );;
-		console.log( selectedLocations, locationMatch, "selectedLocations" )
-
-		const roleMatch = selectedRoles.length === 0 || selectedRoles.some( ( location ) => location.value === job.jobRole );
-		const experienceMatch =
-			( minExperience === null || job.minExp >= minExperience ) &&
-			( maxExperience === null || job.maxExp <= maxExperience );
-
-		return locationMatch && roleMatch && experienceMatch;
+	// Generate experience range array
+	let experienceRange = [];
+	jobs?.forEach( ( job ) => {
+		for ( let year = job.minExp; year <= job.maxExp; year++ ) {
+			if ( !experienceRange.includes( year ) ) {
+				experienceRange.push( year );
+			}
+		}
 	} );
 
+	// Generate base salary range array
+	const baseSalaryRange = [
+		{ value: 0, label: "0k" },
+		{ value: 10, label: "10k" },
+		{ value: 20, label: "20k" },
+		{ value: 30, label: "30k" },
+		{ value: 40, label: "40k" },
+		{ value: 50, label: "50k" },
+		{ value: 60, label: "60k" },
+		{ value: 70, label: "70k" },
+		{ value: 80, label: "80k" },
+		{ value: 90, label: "90k" },
+		{ value: 100, label: "100k" },
+	];
+
+	useEffect( () => {
+		locations = [ ...new Set( jobs?.filter( ( job ) => job.location !== "remote" ).map( ( job ) => job.location ) ) ];
+		isRemote = locations.includes( "Remote" );
+		locations = isRemote ? locations.filter( ( location ) => location !== "Remote" ) : locations;
+		roles = [ ...new Set( jobs?.map( ( job ) => job.jobRole ) ) ];
+		experienceRange.sort( ( a, b ) => a - b ); // Sort experience range array
+	}, [ jobs ] );
+
+	const [ selectedRoles, setSelectedRoles ] = useState( [] );
+	const [ selectedLocations, setSelectedLocations ] = useState( [] );
+	const [ selectedLocationType, setSelectedLocationType ] = useState( [] );
+	const [ selectedExperience, setSelectedExperience ] = useState( null );
+	const [ selectedMinSalary, setSelectedMinSalary ] = useState( null );
+
+	useEffect( () => {
+		setFilteredJobs(
+			jobs?.filter( ( job ) => {
+				const locationMatch =
+					selectedLocations.length === 0 ||
+					selectedLocations.some( ( location ) => location.value === job.location );
+
+				const roleMatch =
+					selectedRoles.length === 0 ||
+					selectedRoles.some( ( role ) => role.value === job.jobRole );
+
+				const isRemoteJob = job.location === "remote";
+				const experienceMatch = selectedExperience === null || job.minExp >= selectedExperience.value || job.minExp <= selectedExperience.value;
+				const baseSalaryMatch = selectedMinSalary === null || job.minJdSalary >= selectedMinSalary.value;
+
+				if ( selectedLocationType.value === "Remote" ) {
+					return isRemoteJob && roleMatch && experienceMatch && baseSalaryMatch;
+				} else if ( selectedLocationType.value === "On-Site" ) {
+					return !isRemoteJob && locationMatch && roleMatch && experienceMatch && baseSalaryMatch;
+				} else {
+					return locationMatch && roleMatch && experienceMatch && baseSalaryMatch;
+				}
+			} )
+		);
+	}, [
+		selectedLocationType,
+		selectedLocations,
+		selectedRoles,
+		selectedExperience,
+		selectedMinSalary,
+		jobs,
+	] );
+
 	const handleLocationChange = ( selectedLocations ) => {
-		console.log( selectedLocations, "selectedLocations" )
 		setSelectedLocations( selectedLocations );
 	};
 
@@ -37,16 +89,28 @@ export const Topbar = ( { jobs } ) => {
 		setSelectedRoles( selectedRoles );
 	};
 
-	const handleMinExperienceChange = ( event ) => {
-		setMinExperience( Number( event.target.value ) );
+	const handleLocationTypeChange = ( selectedLocationType ) => {
+		setSelectedLocationType( selectedLocationType );
 	};
 
-	const handleMaxExperienceChange = ( event ) => {
-		setMaxExperience( Number( event.target.value ) );
+	const handleExperienceChange = ( event ) => {
+		setSelectedExperience( event );
+	};
+
+	const handleMinSalaryChange = ( event ) => {
+		setSelectedMinSalary( event );
 	};
 
 	return (
 		<div className="topbar">
+			<ReactSelect
+				className="dropdown"
+				value={ selectedRoles }
+				onChange={ handleRoleChange }
+				options={ roles.map( ( role ) => ( { value: role, label: role } ) ) }
+				isMulti
+				placeholder="Select Roles"
+			/>
 			<ReactSelect
 				className="dropdown"
 				value={ selectedLocations }
@@ -57,13 +121,30 @@ export const Topbar = ( { jobs } ) => {
 			/>
 			<ReactSelect
 				className="dropdown"
-				value={ selectedRoles }
-				onChange={ handleRoleChange }
-				options={ roles.map( ( role ) => ( { value: role, label: role } ) ) }
-				isMulti
-				placeholder="Select Roles"
+				value={ selectedLocationType }
+				onChange={ handleLocationTypeChange }
+				options={ [
+					{ value: "Remote", label: "Remote" },
+					{ value: "On-Site", label: "On-Site" },
+				] }
+				placeholder="Select Location Type"
+			/>
+			<ReactSelect
+				className="dropdown"
+				value={ selectedExperience }
+				onChange={ handleExperienceChange }
+				options={ experienceRange.map( ( year ) => ( { value: year, label: year } ) ) }
+				placeholder="Select Experience"
+			/>
+
+
+			<ReactSelect
+				className="dropdown"
+				value={ selectedMinSalary }
+				onChange={ handleMinSalaryChange }
+				options={ baseSalaryRange }
+				placeholder="Min Base Salary"
 			/>
 		</div>
 	);
 };
-
